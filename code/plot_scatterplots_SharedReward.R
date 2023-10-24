@@ -35,6 +35,7 @@ total <- inner_join(sharedreward, df_TPJ, by = "sub")
 
 
 #Behavioral ratings and personality factors plot
+#RS_squared and win rating difference friend-computer
 Win_F_C <- lm(`Win_F_C` ~ RS + RS_square + SU + SUxRS + SUxRS_sq, data=postscan_ratings)
 Behavior_RS_r <- cor(postscan_ratings$RS, postscan_ratings$`Win_F_C`, method = 'pearson')
 print(Behavior_RS_r)
@@ -49,8 +50,27 @@ scatter + scale_color_grey() + theme(panel.grid.major = element_blank(),
                                      panel.background = element_blank(), 
                                      axis.line =  element_line(colour="black"))
 ggsave(
-  "../derivatives/Figures/RS_behavioral.svg",
+  "../derivatives/Figures/RS_behavioral_win_friendcomp.svg",
   plot = scatter, bg = "white")
+
+#RS_squared and win rating difference friend-stranger
+Win_Lose_F_C <- lm(`Win_Lose_F_C` ~ RS + RS_square + SU + SUxRS + SUxRS_sq, data=postscan_ratings)
+Behavior_RS_r <- cor(postscan_ratings$RS, postscan_ratings$`Win_Lose_F_C`, method = 'pearson')
+print(Behavior_RS_r)
+summary(Win_Lose_F_C)
+scatter <- ggplot(data = postscan_ratings, aes(x=RS,
+                                    y=`Win_Lose_F_C`))+
+  geom_smooth(method=lm, formula = y ~ poly(x,2), level = 0.99, 
+              se=TRUE, fullrange=TRUE, color="black")+
+  geom_point(shape=1,color="black")
+scatter + scale_color_grey() + theme(panel.grid.major = element_blank(), 
+                                     panel.grid.minor = element_blank(), 
+                                     panel.background = element_blank(), 
+                                     axis.line =  element_line(colour="black"))
+ggsave(
+  "../derivatives/Figures/RS_behavioral_winlose_friendcomp.svg",
+  plot = scatter, bg = "white")
+
 
 
 
@@ -123,7 +143,7 @@ total$SU_qualifier <- cut(sharedreward$SU,
                           breaks = c(-2, 0, 6),
                           labels = c("low","high"))
 total$SU_qualifier
-            #VS-STS Rew-Pun for Friend v Str + Comp, moderated by SUxRS^2 interaction
+            #VS-STG Rew-Pun for Friend v Str + Comp, moderated by SUxRS^2 interaction
 scatter <- ggplot(data = total, aes(x=RS,
                                     y=`ppi_C23_rew-pun_F-SC_z12_su-rs2-neg_cluster3_type-ppi_seed-VS_thr5_cope-23`, 
                                     col = SU_qualifier))+
@@ -136,7 +156,7 @@ scatter + scale_color_grey() + theme(panel.grid.major = element_blank(),
                                      panel.background = element_blank(), 
                                      axis.line =  element_line(colour="black"))
 
-# STG activation: Reward with Friend v Computer, zstat 2 cluster 1 (substance use) activation model exploratory result
+# STS activation: Reward with Friend v Computer, zstat 2 cluster 1 (substance use) activation model exploratory result
 model10 <- lm(`act_C16_rew_F-C_z2_sub_cluster1_type-act_cope-16` ~
                tsnr + fd_mean + RS + RS_square + SU + SUxRS + SUxRS_sq, data=sharedreward)
 summary(model10)
