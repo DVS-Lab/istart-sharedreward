@@ -12,6 +12,8 @@ library("umx")
 library("interactions")
 library("car")
 library("dplyr")
+library("sensemakr")
+library("lsr")
 
 library (tidyverse)
 library(rstatix)
@@ -40,6 +42,7 @@ Win_F_C <- lm(`Win_F_C` ~ RS + RS_square + SU + SUxRS + SUxRS_sq, data=postscan_
 Behavior_RS_r <- cor(postscan_ratings$RS, postscan_ratings$`Win_F_C`, method = 'pearson')
 print(Behavior_RS_r)
 summary(Win_F_C)
+partial_f2(Win_F_C, covariates = "RS_square")
 scatter <- ggplot(data = postscan_ratings, aes(x=RS,
                                     y=`Win_F_C`))+
   geom_smooth(method=lm, formula = y ~ poly(x,2), level = 0.99, 
@@ -53,11 +56,12 @@ ggsave(
   "../derivatives/Figures/RS_behavioral_win_friendcomp.svg",
   plot = scatter, bg = "white")
 
-#RS_squared and win rating difference friend-stranger
+#RS_squared and win rating difference friend-computer
 Win_Lose_F_C <- lm(`Win_Lose_F_C` ~ RS + RS_square + SU + SUxRS + SUxRS_sq, data=postscan_ratings)
 Behavior_RS_r <- cor(postscan_ratings$RS, postscan_ratings$`Win_Lose_F_C`, method = 'pearson')
 print(Behavior_RS_r)
 summary(Win_Lose_F_C)
+partial_f2(Win_Lose_F_C, covariates = "RS_square")
 scatter <- ggplot(data = postscan_ratings, aes(x=RS,
                                     y=`Win_Lose_F_C`))+
   geom_smooth(method=lm, formula = y ~ poly(x,2), level = 0.99, 
@@ -248,6 +252,17 @@ scatter + scale_color_grey() + theme(panel.grid.major = element_blank(),
                                      panel.grid.minor = element_blank(), 
                                      panel.background = element_blank(), 
                                      axis.line =  element_line(colour="black"))
+
+
+model24 <- lm(`act_VS-seed_13-rew-pun_F-C` ~
+                tsnr + fd_mean + RS + RS_square + SU + SUxRS + SUxRS_sq, data=sharedreward)
+model24
+VS_RS_r <- cor(sharedreward$RS, sharedreward$`act_VS-seed_13-rew-pun_F-C`, method = 'pearson')
+print(VS_RS_r)
+summary(model24)
+crPlots(model24, smooth=FALSE, grid=FALSE)
+
+
   #Substance Use finding
 model24
 summary(model24)
@@ -265,7 +280,7 @@ crPlots(model28, smooth=FALSE, grid=FALSE)
 #ANOVA for VS_ROI - repeated measures
 res.aov <- anova_test(
   data = df_VS_ROI, dv = Betas, wid = sub,
-  within = c(Partner, Outcome)
+  within = c(Partner, Outcome), effect.size = "pes"
 )
 get_anova_table(res.aov)
 
@@ -280,6 +295,10 @@ pwc <- df_VS_ROI %>%
     p.adjust.method = "fdr"
   )
 data.frame(pwc)
+filtered.df <- filter(df_VS_ROI, Partner != "Computer")
+
+VS_ttest_effectsize <- filtered.df %>% cohens_d(Betas ~ Partner, paired = TRUE)
+summary(VS_ttest_effectsize)
 
 #ANOVA for VS_TPJ_ROI - repeated measures
 #model30 <- aov(Betas ~ Partner + Outcome, data = df_VS_TPJ_ROI)
