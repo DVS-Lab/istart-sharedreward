@@ -19,24 +19,10 @@ pairs=(
 "SD_win_vs_D_win L1_task-socialdoors_model-1_type-act_run-1_sm-6.feat/stats/zstat1 L1_task-doors_model-1_type-act_run-1_sm-6.feat/stats/zstat1"
 )
 
-# Step 1: Create group mask from first subject and first pair
-first_img=$(echo "${pairs[0]}" | awk '{print $2}')
-fslmaths "${BASEDIR}/sub-${subjects[0]}/${first_img}.nii.gz" -abs -bin "${BASEDIR}/group_mask.nii.gz"
-
-for subj in "${subjects[@]}"; do
-  for pair in "${pairs[@]}"; do
-    img1=$(echo "$pair" | awk '{print $2}')
-    img2=$(echo "$pair" | awk '{print $3}')
-    for img in "$img1" "$img2"; do
-      fslmaths "${BASEDIR}/sub-${subj}/${img}.nii.gz" -abs -bin -mul "${BASEDIR}/group_mask.nii.gz" "${BASEDIR}/group_mask.nii.gz"
-    done
-  done
-done
-
-# Step 2: Write CSV header
+# write header
 (IFS=,; echo "subject,${pairs[*]%% *}") > "${OUTDIR}/correlations.csv"
 
-# Step 3: Compute fslcc correlations
+# compute fslcc correlations
 for subj in "${subjects[@]}"; do
   echo "Processing subject ${subj}..."
   line="${subj}"
@@ -45,7 +31,7 @@ for subj in "${subjects[@]}"; do
     img2=$(echo "$pair" | awk '{print $3}')
     f1="${BASEDIR}/sub-${subj}/${img1}.nii.gz"
     f2="${BASEDIR}/sub-${subj}/${img2}.nii.gz"
-    r=$(fslcc -t -1 -m "${BASEDIR}/group_mask.nii.gz" "$f1" "$f2" | awk '{print $3}')
+    r=$(fslcc -t -1 --noabs -m "${BASEDIR}/group_mask.nii.gz" "$f1" "$f2" | awk '{print $3}')
     line+=",${r}"
   done
   echo "$line" >> "${OUTDIR}/correlations.csv"
