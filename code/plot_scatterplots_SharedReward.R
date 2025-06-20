@@ -20,7 +20,7 @@ library(rstatix)
 library(reshape)
 library(datarium)
 
-setwd("C:/Users/tup54227/Documents/GitHub/istart-sharedreward/derivatives/")
+setwd("/Users/alidazimmerman/Documents/GitHub/istart-sharedreward/derivatives/")
 maindir <- getwd()
 datadir <- file.path("../derivatives/")
 
