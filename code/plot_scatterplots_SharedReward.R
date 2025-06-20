@@ -14,15 +14,14 @@ library("car")
 library("dplyr")
 library("sensemakr")
 library("lsr")
+library ("tidyverse")
+library("rstatix")
+library("reshape")
+library("datarium")
+library("here")
 
-library (tidyverse)
-library(rstatix)
-library(reshape)
-library(datarium)
-
-setwd("/Users/alidazimmerman/Documents/GitHub/istart-sharedreward/derivatives/")
-maindir <- getwd()
-datadir <- file.path("../derivatives/")
+maindir <- here::here("code")
+datadir <- here::here("derivatives")
 
 # import data
 #here()
